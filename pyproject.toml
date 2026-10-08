@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RAG"
+version = "0.1.0"
+description = "i don't know what i do"
+readme = "README.md"
+requires-python = ">=3.10 ,<3.14"
+dependencies = [
+	"flake8>=7.3.0",
+	"mypy>=1.20.0",
+    "pydantic",
+    "torch==2.5.1+cpu",
+    "numpy",
+    "regex",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+# ─────────────────────────────────────────────
+#  MYPY — vérification de types statique
+# ─────────────────────────────────────────────
+[tool.mypy]
+exclude = [""]
+python_version = "3.12"
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_return_any = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = ""
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ""
+ignore_errors = true
+
+[tool.black]
+line-length = 79
