@@ -7,7 +7,7 @@ name = "RAG"
 version = "0.1.0"
 description = "i don't know what i do"
 readme = "README.md"
-requires-python = ">=3.10 ,<3.14"
+requires-python = ">=3.12 ,<3.14"
 dependencies = [
 	"flake8>=7.3.0",
 	"mypy>=1.20.0",
@@ -24,6 +24,10 @@ torch = { index = "pytorch-cpu" }
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
+
+[tool.setuptools.packages.find]
+include = ["pars*"]
+exclude = ["Rag_subject*"]
 
 # ─────────────────────────────────────────────
 #  MYPY — vérification de types statique
