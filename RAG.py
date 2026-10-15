@@ -10,14 +10,14 @@ def main() -> None:
 
     print(f"Files parsed: {len(files.root)}")
     i = 0
-    rainbow = Rainbow(degrees=7.5)
+    rainbow = Rainbow(degrees=30)
     for source_file in files.root[:50]:
 
-        source = source_file.path
+        source = source_file.chunks[0].content
         source2 = source_file.extension
         bloup = rainbow.give()
 
-        print(color((source, source2), bloup[0], bloup[1], bloup[2]))
+        print(color((source), bloup[0], bloup[1], bloup[2]))
         i += 1
 
 
