@@ -1,3 +1,4 @@
+import colorsys
 from random import choice
 
 THEME_COLOR = {
@@ -34,6 +35,56 @@ THEME_COLOR = {
     "transpa": (255, 255, 255, 10),
     "invyziblmepatropkanmem": (255, 255, 255, 75),
 }
+
+
+class Rainbow:
+    """
+    Dégradé chromatique : chaque appel avance sur le cercle des teintes.
+
+    Args:
+        degrees: Pas de changement de teinte par appel, en degrés (0-360).
+                 1° = très fluide (360 appels pour un tour complet),
+                 5° = visible, 20° = très contrasté.
+        start: Teinte de départ en degrés.
+        saturation: 0.0 (gris) à 1.0 (couleur pleine).
+        value: 0.0 (noir) à 1.0 (lumineux).
+    """
+
+    def __init__(
+        self,
+        degrees: float = 2.0,
+        start: float = 0.0,
+        saturation: float = 1.0,
+        value: float = 1.0,
+    ):
+        self.degrees = degrees
+        self.start = start
+        self.saturation = saturation
+        self.value = value
+        self.hue = start % 360
+
+    def reset(self) -> None:
+        self.hue = self.start % 360
+
+    def give(self) -> list[int]:
+        r, g, b = (
+            round(c * 255)
+            for c in colorsys.hsv_to_rgb(
+                self.hue / 360, self.saturation, self.value
+            )
+        )
+        self.hue = (self.hue + self.degrees) % 360
+        return [r, g, b]
+
+    def __call__(self, text: str | int) -> str:
+        r, g, b = (
+            round(c * 255)
+            for c in colorsys.hsv_to_rgb(
+                self.hue / 360, self.saturation, self.value
+            )
+        )
+        self.hue = (self.hue + self.degrees) % 360
+        return f"\033[38;2;{r};{g};{b}m{text}\033[0m"
 
 
 def color(text: str | int | None, r: int, g: int, b: int) -> str:
