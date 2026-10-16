@@ -98,7 +98,8 @@ class Parser:
         for func in ast.walk(tree):
             if isinstance(func, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 start_char = line_starts[func.lineno - 1]
-                end_char = line_starts[func.end_lineno - 1]
+                if func.end_lineno:
+                    end_char = line_starts[func.end_lineno - 1]
 
                 # Inclure toute la dernière ligne
                 end_char = content.find("\n", end_char)
@@ -158,6 +159,3 @@ def find_functions(path: Path) -> None:
             print(f"Fonction : {node.name}")
             print(f"Début : ligne {start}, fin : ligne {end}")
             print()
-
-
-# find_functions(Path("pars_content.py"))

@@ -34,7 +34,7 @@ exclude = ["Rag_subject*"]
 #  MYPY — vérification de types statique
 # ─────────────────────────────────────────────
 [tool.mypy]
-exclude = [""]
+exclude = ["Rag_subject/"]
 python_version = "3.12"
 ignore_missing_imports = true
 disallow_untyped_defs = true
@@ -44,11 +44,11 @@ warn_return_any = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ""
+module = "Rag_subject/"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ""
+module = "Rag_subject/"
 ignore_errors = true
 
 [tool.black]
