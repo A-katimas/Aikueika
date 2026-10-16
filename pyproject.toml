@@ -11,10 +11,11 @@ requires-python = ">=3.12 ,<3.14"
 dependencies = [
 	"flake8>=7.3.0",
 	"mypy>=1.20.0",
-    "pydantic",
-    "torch==2.5.1+cpu",
-    "numpy",
-    "regex",
+	"pydantic",
+	"torch==2.5.1+cpu",
+	"numpy",
+	"regex",
+	"rank-bm25>=0.2.2",
 ]
 
 [tool.uv.sources]

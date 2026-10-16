@@ -1,15 +1,7 @@
 import ast
 from pathlib import Path
 from pydantic import BaseModel, Field, RootModel
-
-
-class Chunk(BaseModel):
-    """Represent a searchable fragment of a source file."""
-
-    source_path: Path
-    content: str
-    start_char: int = Field(ge=0)
-    end_char: int = Field(ge=0)
+from pars.chunker import Chunk, Chunker
 
 
 class SourceFile(BaseModel):
@@ -19,7 +11,7 @@ class SourceFile(BaseModel):
     extension: str
     content: str
     size: int = Field(ge=0)
-    chunks: list[Chunk]
+    chunks: list[Chunk] = Field(default_factory=list)
 
 
 class SourceFiles(RootModel[list[SourceFile]]):
@@ -43,6 +35,7 @@ class Parser:
 
     def __init__(self, root: Path) -> None:
         self.root = root.resolve()
+        self.chunker = Chunker(max_chunk_size=2000)
 
     def discover_files(self) -> list[Path]:
         """Find supported files recursively."""
@@ -73,13 +66,14 @@ class Parser:
         if path.suffix not in self.SUPPORTED_EXTENSIONS:
             return None
         content = path.read_text(encoding="utf-8")
-        chunk = self.chunking(path, content)
+        chunks = self.chunker.chunk(path.relative_to(self.root), content)
+
         return SourceFile(
             path=path.relative_to(self.root),
             extension=path.suffix,
             content=content,
             size=len(content),
-            chunks=chunk,
+            chunks=chunks,
         )
 
     def chunking(self, path: Path, content: str) -> list[Chunk]:
