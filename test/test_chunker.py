@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from pars.chunker import Chunker
+from src.chunker import Chunker
 
 
 def test_chunks_respect_max_size() -> None:

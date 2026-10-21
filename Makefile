@@ -38,13 +38,13 @@ debug:
 
 lint:
 	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,Rag_subject
-	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs pars/
+	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src/
 	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs RAG.py
 
 
 lint-strict:
 	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,Rag_subject
-	@$(PYTHON) -m mypy --explicit-package-bases --strict pars/
+	@$(PYTHON) -m mypy --explicit-package-bases --strict src/
 	@$(PYTHON) -m mypy --explicit-package-bases --strict RAG.py
 
 clean:

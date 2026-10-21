@@ -1,7 +1,7 @@
 from pathlib import Path
 from use_terminal.color import Rainbow, color
-from pars.pars_content import Parser
-from pars.finder import Finder
+from src.pars_content import Parser
+from src.finder import Finder
 
 
 def main() -> None:

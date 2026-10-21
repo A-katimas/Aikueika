@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
-from pars.chunker import Chunk
-from pars.finder import Finder
+from src.chunker import Chunk
+from src.finder import Finder
 
 
 def test_finder_finds_relevant_chunk() -> None:

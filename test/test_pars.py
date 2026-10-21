@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from pars.pars_content import Parser
+from src.pars_content import Parser
 
 
 def test_discover_supported_files(tmp_path: Path) -> None:
