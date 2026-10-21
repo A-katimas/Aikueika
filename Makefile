@@ -1,4 +1,5 @@
 PYTHON		= uv run python3
+pytest		= uv run pytest
 UV			= uv
 VENV		= .venv
 RAG			= RAG.py
@@ -14,9 +15,23 @@ install:
 	@echo ">>> OK — projet prêt !"
 
 
+
+test-finder:
+	@$(PYTHON) -m pytest test/test_finder.py -v
+
+test-chunker:
+	@$(PYTHON) -m pytest test/test_chunker.py -v
+
+test-parser:
+	@$(PYTHON) -m pytest test/test_pars.py -v
+
+test: test-finder test-chunker test-parser
+
+
+
 run:
 	@echo ">>> Lancement de la simulation..."
-	$(PYTHON) $(RAG) $(CONFIG)
+	@$(PYTHON) $(RAG) $(CONFIG)
 
 debug:
 	@$(PYTHON) -m pdb -m $(RAG)
@@ -46,4 +61,5 @@ fclean: clean
 	@rm -rf $(VENV)
 	@echo ">>> FClean OK !"
 
-.PHONY: run install debug clean fclean lint lint-strict
+
+.PHONY: run install debug clean fclean lint lint-strict test

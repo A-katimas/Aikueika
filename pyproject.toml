@@ -53,3 +53,8 @@ ignore_errors = true
 
 [tool.black]
 line-length = 79
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

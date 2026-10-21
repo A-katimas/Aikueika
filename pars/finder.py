@@ -42,12 +42,11 @@ class Finder:
             return []
 
         scores = self.index.get_scores(query_tokens)
+
         ranked_indices = sorted(
             range(len(scores)),
             key=lambda i: scores[i],
             reverse=True,
         )
 
-        return [
-            self.chunks[i] for i in ranked_indices[:top_k] if scores[i] > 0
-        ]
+        return [self.chunks[i] for i in ranked_indices[:top_k]]
