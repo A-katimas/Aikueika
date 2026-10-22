@@ -2,11 +2,14 @@ from pathlib import Path
 from use_terminal.color import Rainbow, color
 from src.pars_content import Parser
 from src.finder import Finder
+from src.generator import Generator
 
 
 def main() -> None:
     parser = Parser(Path("."))
     source_files = parser.parse_repository()
+
+    generator = Generator()
 
     all_chunks = [
         chunk
@@ -14,10 +17,11 @@ def main() -> None:
         for chunk in source_file.chunks
     ]
     rainbow = Rainbow(degrees=40)
+    question = "how to make a backfilp"
     finder = Finder()
     finder.build_index(all_chunks)
 
-    results = finder.search("ou son les token", top_k=5)
+    results = finder.search(question, top_k=5)
 
     for chunk in results:
         bloup = rainbow.give()
@@ -26,23 +30,9 @@ def main() -> None:
         print(color(chunk.content, bloup[0], bloup[1], bloup[2]))
         print("---")
 
+    rep = generator.generate(question, results)
+    print(rep)
+
 
 if __name__ == "__main__":
     main()
-
-
-# from pathlib import Path
-
-
-# path = Path("README.md")
-# content = path.read_text(encoding="utf-8")
-
-# chunker = Chunker(max_chunk_size=2000)
-# chunks = chunker.chunk(path, content)
-
-# for chunk in chunks:
-#    assert len(chunk.content) <= 2000
-#    assert content[chunk.start_char : chunk.end_char] == chunk.content
-
-# print(f"Nombre de chunks : {len(chunks)}")
-# print("Tous les chunks respectent la limite et les positions.")
