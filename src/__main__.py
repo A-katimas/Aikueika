@@ -13,6 +13,7 @@ def main() -> None:
 
     rag = Rag(parser, finder, generator, 5, question)
     rag.print_chunk()
+    print("fin")
 
 
 if __name__ == "__main__":
