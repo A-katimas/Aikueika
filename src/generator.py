@@ -1,13 +1,23 @@
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    TextStreamer,
+)
 from src.chunker import Chunk
 from use_terminal.color import Rainbow, color
+from typing import Any
 
 MODEL_NAME = "Qwen/Qwen3-0.6B"
 
 
 class RainbowStreamer(TextStreamer):
-    def __init__(self, tokenizer, rainbow, **kwargs):
+    def __init__(
+        self,
+        tokenizer: AutoTokenizer,
+        rainbow: Rainbow,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(tokenizer, **kwargs)
         self.rainbow = rainbow
 
@@ -25,14 +35,19 @@ class RainbowStreamer(TextStreamer):
 
 
 class Generator:
+    """Generate an answer from retrieved chunks using Qwen3."""
+
     def __init__(self, token_used: int = 100) -> None:
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        token = AutoTokenizer.from_pretrained(  # type: ignore[no-untyped-call]
+            MODEL_NAME
+        )
+        self.tokenizer = token
         self.model = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
             dtype=torch.float32,
         )
         self.token_used = token_used
-        self.model.eval()
+        self.model.eval()  # type: ignore[no-untyped-call]
         self.rainbow = Rainbow(degrees=5)
 
     def generate(self, question: str, chunks: list[Chunk]) -> str:
@@ -47,7 +62,8 @@ class Generator:
                 "content": (
                     "Tu es un assistant qui répond aux questions sur du code. "
                     "Utilise uniquement le contexte fourni. "
-                    "Si le contexte ne contient pas la réponse, dis-le clairement."
+                    "Si le contexte ne contient pas la réponse,"
+                    " dis-le clairement."
                 ),
             },
             {
@@ -97,5 +113,5 @@ class Generator:
             generated_tokens,
             skip_special_tokens=True,
         )
-
-        return answer.strip()
+        end = answer.strip()
+        return str(end)

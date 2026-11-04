@@ -2,7 +2,7 @@ PYTHON		= uv run python3
 pytest		= uv run pytest
 UV			= uv
 VENV		= .venv
-RAG			= RAG.py
+RAG			= -m src
 TMP_DIRS	= __pycache__ .mypy_cache .ruff_cache build dist pac-man-linux.spec
 
 CONFIG ?= ""
@@ -37,15 +37,13 @@ debug:
 	@$(PYTHON) -m pdb -m $(RAG)
 
 lint:
-	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,Rag_subject
+	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,vllm-0.10.1
 	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src/
-	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs RAG.py
 
 
 lint-strict:
-	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,Rag_subject
+	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,vllm-0.10.1
 	@$(PYTHON) -m mypy --explicit-package-bases --strict src/
-	@$(PYTHON) -m mypy --explicit-package-bases --strict RAG.py
 
 clean:
 	@echo ">>> Suppression des fichiers temporaires..."
