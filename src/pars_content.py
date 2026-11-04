@@ -33,9 +33,9 @@ class Parser:
         "dist",
     }
 
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, max_chunk_size: int = 2000) -> None:
         self.root = root.resolve()
-        self.chunker = Chunker(max_chunk_size=2000)
+        self.chunker = Chunker(max_chunk_size)
 
     def discover_files(self) -> list[Path]:
         """Find supported files recursively."""
