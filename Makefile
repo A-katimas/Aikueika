@@ -37,12 +37,12 @@ debug:
 	@$(PYTHON) -m pdb -m $(RAG)
 
 lint:
-	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,vllm-0.10.1
+	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,data
 	@$(PYTHON) -m mypy --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src/
 
 
 lint-strict:
-	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,vllm-0.10.1
+	@$(PYTHON) -m flake8 --max-line-length=79 --exclude=.venv,data
 	@$(PYTHON) -m mypy --explicit-package-bases --strict src/
 
 clean:

@@ -38,16 +38,15 @@ class Generator:
     """Generate an answer from retrieved chunks using Qwen3."""
 
     def __init__(self, token_used: int = 100) -> None:
-        token = AutoTokenizer.from_pretrained(  # type: ignore[no-untyped-call]
-            MODEL_NAME
-        )
-        self.tokenizer = token
+        load = AutoTokenizer.from_pretrained
+        tok = load(MODEL_NAME)  # type: ignore[no-untyped-call, unused-ignore]
+        self.tokenizer = tok
         self.model = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
             dtype=torch.float32,
         )
         self.token_used = token_used
-        self.model.eval()  # type: ignore[no-untyped-call]
+        self.model.eval()  # type: ignore[no-untyped-call, unused-ignore]
         self.rainbow = Rainbow(degrees=5)
 
     def generate(self, question: str, chunks: list[Chunk]) -> str:
