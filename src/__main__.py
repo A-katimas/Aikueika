@@ -85,6 +85,7 @@ class Cli:
                 dataset_path,
                 save_directory,
             )
+
         except (OSError, ValueError) as error:
             print_error(str(error))
             return
