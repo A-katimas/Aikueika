@@ -2,6 +2,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from src.generator import Generator
 from src.chunker import Chunk
 from src.finder import Finder
 from src.models import (
@@ -69,6 +70,18 @@ class Pipeline:
             self.build_index()
         chunks = self.finder.search(query, top_k=k)
         return [self.to_source(chunk) for chunk in chunks]
+
+    def awnser(self, query: str, k: int = 5) -> str:
+        self.generator = Generator()
+        if not self.is_indexed:
+            self.build_index()
+        chunks = self.finder.search(query, k)
+        return self.generator.generate(query, chunks)
+
+    def awnser_dataset(
+        self, dataset: RagDataset, query: str, k: int = 5
+    ) -> str:
+        print("yesy")
 
     @staticmethod
     def load_dataset(dataset_path: str) -> RagDataset:

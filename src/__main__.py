@@ -91,6 +91,34 @@ class Cli:
             return
         print(f"Saved student_search_results to {output_file}")
 
+    def index(
+        self,
+        raw_dir: str = RAW_DIR,
+        max_chunk_size: int = MAX_CHUNK_SIZE,
+    ) -> None:
+        try:
+            pipeline = Pipeline(raw_dir, max_chunk_size)
+            res = pipeline.build_index()
+            print(res)
+        except (OSError, ValueError) as error:
+            print_error(str(error))
+            return
+
+    def answer(
+        self,
+        query: str,
+        k: int = 5,
+        raw_dir: str = RAW_DIR,
+        max_chunk_size: int = MAX_CHUNK_SIZE,
+    ):
+        try:
+            pipeline = Pipeline(raw_dir, max_chunk_size)
+            res = pipeline.awnser(query, k)
+            print(res)
+        except (OSError, ValueError) as error:
+            print_error(str(error))
+            return
+
 
 if __name__ == "__main__":
     fire.Fire(Cli)

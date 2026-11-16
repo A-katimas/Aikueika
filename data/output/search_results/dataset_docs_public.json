@@ -5370,9 +5370,9 @@
           "last_character_index": 11526
         },
         {
-          "file_path": "vllm-0.10.1/docs/features/reasoning_outputs.md",
-          "first_character_index": 1944,
-          "last_character_index": 3555
+          "file_path": "vllm-0.10.1/examples/online_serving/openai_chat_completion_with_reasoning_streaming.py",
+          "first_character_index": 0,
+          "last_character_index": 1141
         }
       ]
     },
