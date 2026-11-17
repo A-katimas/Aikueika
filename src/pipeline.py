@@ -1,21 +1,28 @@
+"""RAG pipeline: indexing, searching and answering."""
+
+import uuid
 from pathlib import Path
 
 from tqdm import tqdm
 
-from src.generator import Generator
 from src.chunker import Chunk
 from src.finder import Finder
+from src.generator import Generator
 from src.models import (
+    MinimalAnswer,
     MinimalSearchResults,
     MinimalSource,
     RagDataset,
     StudentSearchResults,
+    StudentSearchResultsAndAnswer,
 )
 from src.pars_content import Parser
 
+NO_ANSWER = "No relevant information was found to answer this question."
+
 
 class Pipeline:
-    """Index a corpus once, then answer search requests.
+    """Index a corpus once, then search it and answer questions.
 
     Errors (missing folder, invalid k, bad JSON...) are raised as
     OSError or ValueError so that the caller decides how to report them.
@@ -25,12 +32,17 @@ class Pipeline:
         self,
         raw_dir: str = "data/raw",
         max_chunk_size: int = 2000,
+        max_context_passages: int = 5,
     ) -> None:
         """Prepare the pipeline without reading anything yet."""
         self.raw_dir = Path(raw_dir)
         self.max_chunk_size = max_chunk_size
+        self.max_context_passages = max_context_passages
         self.finder = Finder()
         self.is_indexed = False
+        self.generator: Generator | None = None
+
+    # ------------------------------------------------------------ index
 
     def build_index(self) -> int:
         """Parse and chunk the corpus, then build the search index.
@@ -52,6 +64,8 @@ class Pipeline:
         self.is_indexed = True
         return len(chunks)
 
+    # ----------------------------------------------------------- search
+
     @staticmethod
     def to_source(chunk: Chunk) -> MinimalSource:
         """Convert a Chunk into the MinimalSource expected by the grader."""
@@ -66,22 +80,12 @@ class Pipeline:
 
         The index is built on the first call if needed.
         """
+        if not isinstance(k, int) or k <= 0:
+            raise ValueError("k must be a positive integer")
         if not self.is_indexed:
             self.build_index()
         chunks = self.finder.search(query, top_k=k)
         return [self.to_source(chunk) for chunk in chunks]
-
-    def awnser(self, query: str, k: int = 5) -> str:
-        self.generator = Generator()
-        if not self.is_indexed:
-            self.build_index()
-        chunks = self.finder.search(query, k)
-        return self.generator.generate(query, chunks)
-
-    def awnser_dataset(
-        self, dataset: RagDataset, query: str, k: int = 5
-    ) -> str:
-        print("yesy")
 
     @staticmethod
     def load_dataset(dataset_path: str) -> RagDataset:
@@ -95,7 +99,7 @@ class Pipeline:
         k: int = 10,
     ) -> StudentSearchResults:
         """Search every question of a dataset."""
-        if k <= 0:
+        if not isinstance(k, int) or k <= 0:
             raise ValueError("k must be a positive integer")
         if not self.is_indexed:
             self.build_index()
@@ -111,16 +115,121 @@ class Pipeline:
             )
         return StudentSearchResults(search_results=results, k=k)
 
+    # ----------------------------------------------------------- answer
+
+    def get_generator(self) -> Generator:
+        """Create the generator on first use (loading Qwen is slow)."""
+        if self.generator is None:
+            self.generator = Generator()
+        return self.generator
+
+    @staticmethod
+    def read_passage(source: MinimalSource) -> str:
+        """Read the text covered by a source from its file."""
+        content = Path(source.file_path).read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
+        start = source.first_character_index
+        end = source.last_character_index
+        return content[start:end]
+
+    def answer_question(
+        self,
+        question_id: str,
+        question: str,
+        sources: list[MinimalSource],
+        stream: bool = False,
+    ) -> MinimalAnswer:
+        """Generate an answer to a question from its retrieved sources.
+
+        Only the first max_context_passages sources are given to the
+        model (small token budget), but all sources are kept in the
+        result.
+        """
+        passages: list[str] = []
+        for source in sources[: self.max_context_passages]:
+            try:
+                text = self.read_passage(source)
+            except OSError as e:
+                print(e)
+                continue
+            if text.strip():
+                passages.append(f"File: {source.file_path}\n{text}")
+
+        if passages:
+            answer = self.get_generator().generate(
+                question,
+                passages,
+                stream,
+            )
+        else:
+            answer = NO_ANSWER
+
+        return MinimalAnswer(
+            question_id=question_id,
+            question=question,
+            retrieved_sources=sources,
+            answer=answer,
+        )
+
+    def answer(
+        self,
+        query: str,
+        k: int = 5,
+        stream: bool = False,
+    ) -> MinimalAnswer:
+        """Search then answer a single question."""
+        if not query.strip():
+            raise ValueError("the query is empty")
+        sources = self.search(query, k)
+        return self.answer_question(
+            str(uuid.uuid4()),
+            query,
+            sources,
+            stream,
+        )
+
+    @staticmethod
+    def load_search_results(path: str) -> StudentSearchResults:
+        """Read and validate a StudentSearchResults JSON file."""
+        text = Path(path).read_text(encoding="utf-8")
+        return StudentSearchResults.model_validate_json(text)
+
+    def answer_dataset(
+        self,
+        results: StudentSearchResults,
+    ) -> StudentSearchResultsAndAnswer:
+        """Answer every question of a StudentSearchResults.
+
+        No search is done here: the sources come from the input file.
+        """
+        answers: list[MinimalAnswer] = []
+        for item in tqdm(results.search_results, desc="Answering"):
+            answers.append(
+                self.answer_question(
+                    item.question_id,
+                    item.question,
+                    item.retrieved_sources,
+                )
+            )
+        return StudentSearchResultsAndAnswer(
+            search_results=answers,
+            k=results.k,
+        )
+
+    # ------------------------------------------------------------- save
+
     @staticmethod
     def save_results(
-        results: StudentSearchResults,
-        dataset_path: str,
+        results: StudentSearchResults | StudentSearchResultsAndAnswer,
+        input_path: str,
         save_directory: str,
     ) -> Path:
-        """Write the results as JSON, named after the dataset file."""
+        """Write the results as JSON, named after the input file."""
         output_dir = Path(save_directory)
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / Path(dataset_path).name
+        output_file = output_dir / Path(input_path).name
         output_file.write_text(
             results.model_dump_json(indent=2),
             encoding="utf-8",
