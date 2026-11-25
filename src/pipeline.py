@@ -32,7 +32,7 @@ class Pipeline:
         self,
         raw_dir: str = "data/raw",
         max_chunk_size: int = 2000,
-        max_context_passages: int = 5,
+        max_context_passages: int = 3,
     ) -> None:
         """Prepare the pipeline without reading anything yet."""
         self.raw_dir = Path(raw_dir)
@@ -41,6 +41,10 @@ class Pipeline:
         self.finder = Finder()
         self.is_indexed = False
         self.generator: Generator | None = None
+        if max_chunk_size < 1:
+            raise ValueError("max_chunk_size must be positive")
+        if max_chunk_size > 2000:
+            raise ValueError("max chunk can be more 2000")
 
     # ------------------------------------------------------------ index
 
@@ -139,7 +143,6 @@ class Pipeline:
         question_id: str,
         question: str,
         sources: list[MinimalSource],
-        stream: bool = False,
     ) -> MinimalAnswer:
         """Generate an answer to a question from its retrieved sources.
 
@@ -161,7 +164,6 @@ class Pipeline:
             answer = self.get_generator().generate(
                 question,
                 passages,
-                stream,
             )
         else:
             answer = NO_ANSWER
@@ -177,7 +179,6 @@ class Pipeline:
         self,
         query: str,
         k: int = 5,
-        stream: bool = False,
     ) -> MinimalAnswer:
         """Search then answer a single question."""
         if not query.strip():
@@ -187,7 +188,6 @@ class Pipeline:
             str(uuid.uuid4()),
             query,
             sources,
-            stream,
         )
 
     @staticmethod

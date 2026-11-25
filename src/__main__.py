@@ -24,6 +24,7 @@ import sys
 
 import fire
 
+from src.evaluate import Evaluator
 from src.pipeline import Pipeline
 from use_terminal.color import Rainbow, color
 
@@ -115,7 +116,6 @@ class Cli:
         self,
         query: str,
         k: int = 5,
-        stream: bool = False,
         raw_dir: str = RAW_DIR,
         max_chunk_size: int = MAX_CHUNK_SIZE,
     ) -> None:
@@ -125,7 +125,7 @@ class Cli:
         """
         try:
             pipeline = Pipeline(raw_dir, max_chunk_size)
-            result = pipeline.answer(str(query), k, stream)
+            result = pipeline.answer(str(query), k)
         except ERRORS as error:
             print_error(str(error))
             return
@@ -142,7 +142,7 @@ class Cli:
                     wouf[2],
                 )
             )
-        if not stream or not result.retrieved_sources:
+        if not result.retrieved_sources:
             print("Answer:")
             print(result.answer)
 
@@ -170,6 +170,38 @@ class Cli:
             print_error(str(error))
             return
         print(f"Saved student_search_results_and_answer to {output_file}")
+
+    def evaluate(
+        self,
+        student_search_results_path: str,
+        dataset_path: str,
+        ks: tuple[int, ...] | int = (1, 3, 5, 10),
+        max_context_length: int = 2000,
+    ) -> None:
+        """Print the recall@k of search results against a ground truth."""
+        k_list = [ks] if isinstance(ks, int) else list(ks)
+        try:
+            evaluator = Evaluator(max_context_length=max_context_length)
+            results = evaluator.load_results(student_search_results_path)
+            dataset = evaluator.load_dataset(dataset_path)
+            report = evaluator.evaluate(results, dataset, k_list)
+        except ERRORS as error:
+            print_error(str(error))
+            return
+        print(f"Student data is valid: {report.too_long_sources == 0}")
+        print("Evaluation Results")
+        print("=" * 40)
+        print(
+            " ".join(
+                f"Recall@{k}: {value:.3f}"
+                for k, value in report.recall.items()
+            )
+        )
+        print(
+            f"Questions: {report.questions}, "
+            f"without results: {report.without_results}, "
+            f"sources too long: {report.too_long_sources}"
+        )
 
 
 if __name__ == "__main__":

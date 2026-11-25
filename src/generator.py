@@ -3,9 +3,7 @@
 from typing import Any
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
-
-from use_terminal.color import Rainbow, color
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 MODEL_NAME = "Qwen/Qwen3-0.6B"
 
@@ -15,34 +13,8 @@ SYSTEM_PROMPT = (
     "Use only the context provided by the user. "
     "If the context does not contain the answer, say so clearly. "
     "Answer concisely and do not invent anything."
+    "Answer in at most two sentences."
 )
-
-
-class RainbowStreamer(TextStreamer):
-    """Print the generated text piece by piece, in rainbow colors."""
-
-    def __init__(
-        self,
-        tokenizer: AutoTokenizer,
-        rainbow: Rainbow,
-        **kwargs: Any,
-    ) -> None:
-        """Store the rainbow used to color the output."""
-        super().__init__(tokenizer, **kwargs)
-        self.rainbow = rainbow
-
-    def on_finalized_text(self, text: str, stream_end: bool = False) -> None:
-        """Print a piece of text with the next rainbow color."""
-        if text:
-            bloup = self.rainbow.give()
-            print(
-                color(text, bloup[0], bloup[1], bloup[2]),
-                end="",
-                flush=True,
-            )
-
-        if stream_end:
-            print()
 
 
 class Generator:
@@ -55,7 +27,6 @@ class Generator:
     def __init__(self, max_new_tokens: int = 256) -> None:
         """Prepare the generator without loading the model yet."""
         self.max_new_tokens = max_new_tokens
-        self.rainbow = Rainbow(degrees=5)
         self.tokenizer: Any = None
         self.model: Any = None
 
@@ -73,18 +44,12 @@ class Generator:
         self.tokenizer = tok
         self.model = model
 
-    def generate(
-        self,
-        question: str,
-        passages: list[str],
-        stream: bool = False,
-    ) -> str:
+    def generate(self, question: str, passages: list[str]) -> str:
         """Answer a question from the given passages.
 
         Args:
             question: The question to answer.
             passages: Texts retrieved for this question, best first.
-            stream: Print the answer while it is being generated.
 
         Returns:
             The generated answer.
@@ -106,22 +71,23 @@ class Generator:
             return_tensors="pt",
             return_dict=True,
         )
+        print(inputs["input_ids"].shape[1], "prompt tokens")
+        import time
 
-        options: dict[str, Any] = {
-            "max_new_tokens": self.max_new_tokens,
-            "do_sample": False,
-        }
-        if stream:
-            options["streamer"] = RainbowStreamer(
-                self.tokenizer,
-                self.rainbow,
-                skip_prompt=True,
-                skip_special_tokens=True,
-            )
-
+        start = time.time()
         with torch.no_grad():
-            outputs = self.model.generate(**inputs, **options)
-
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=self.max_new_tokens,
+                do_sample=False,
+            )
+        duree = round(time.time() - start, 1)
+        print(
+            duree,
+            "s,",
+            outputs.shape[1] - inputs["input_ids"].shape[1],
+            "new tokens",
+        )
         # Remove the tokens that belong to the prompt.
         prompt_length = inputs["input_ids"].shape[1]
         answer = self.tokenizer.decode(

@@ -55,7 +55,7 @@
           "last_character_index": 10547
         }
       ],
-      "answer": "The HTTP endpoint used to dynamically load a LoRA adapter in vLLM is `http://localhost:8000/v1/load_lora_adapter`."
+      "answer": "The HTTP endpoint used to dynamically load a LoRA adapter in vLLM is `/v1/load_lora_adapter`."
     },
     {
       "question_id": "cc83c230-099f-4c11-aeab-8c09715c5942",
@@ -112,7 +112,7 @@
           "last_character_index": 6384
         }
       ],
-      "answer": "The command to evaluate the accuracy of a quantized model using `lm_eval` with vLLM is:\n\n```bash\nlm_eval --model vllm --model_args pretrained=\"./Meta-Llama-3-8B-Instruct-W8A8-Dynamic-Per-Token\",add_bos_token=true --tasks gsm8k --num_fewshot 5 --limit 250 --batch_size 'auto'\n```"
+      "answer": "The command to evaluate the accuracy of a quantized model using `lm_eval` with vLLM is:\n\n```bash\nlm_eval --model vllm --model_args pretrained=\"./Meta-Llama-3-8B-Instruct-W4A16-G128\",add_bos_token=true --tasks gsm8k --num_fewshot 5 --limit 250 --batch_size 'auto'\n```"
     },
     {
       "question_id": "5ea5c01a-c953-4477-ae3a-978e20bd73b8",
@@ -169,7 +169,7 @@
           "last_character_index": 1596
         }
       ],
-      "answer": "The method provided by vLLM's LLM class for generating embedding vectors from prompts is `LLM.embed`."
+      "answer": "The method provided by vLLM's LLM class for generating embedding vectors from prompts is `embed`."
     }
   ],
   "k": 10

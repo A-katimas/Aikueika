@@ -19,8 +19,7 @@ class Chunker:
 
     def __init__(self, max_chunk_size: int = 2000) -> None:
         """Initialize the chunker with a maximum chunk size."""
-        if max_chunk_size < 1:
-            raise ValueError("max_chunk_size must be positive")
+
 
         self.max_chunk_size = max_chunk_size
 
@@ -66,7 +65,7 @@ class Chunker:
                 end = max(candidates)
             else:
                 # No suitable semantic boundary: prefer a newline.
-                newline = content.rfind("\n", cursor + 1, limit + 1)
+                newline = content.rfind("\n", cursor + 1, limit)
                 end = newline + 1 if newline >= cursor else limit
 
             # Guarantee forward progress.
