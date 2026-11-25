@@ -66,9 +66,9 @@ class Parser:
             return None
 
         path = path.resolve()
-        relative = path.relative_to(self.root)
+        relative = path.relative_to(Path.cwd())
 
-        content = path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8", errors="replace")
         chunks = self.chunker.chunk(relative, content)
 
         return SourceFile(

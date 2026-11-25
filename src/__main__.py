@@ -120,9 +120,13 @@ class Cli:
                     wouf[2],
                 )
             )
-        if not result.retrieved_sources:
+        if result.retrieved_sources:
             print("Answer:")
-            print(result.answer)
+            print(color(result.answer, 50, 200, 100))
+        else:
+            print(
+                color("sorry we don't have the sources to know that", 99, 5, 5)
+            )
 
     def answer_dataset(
         self,
