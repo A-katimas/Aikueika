@@ -56,15 +56,18 @@ install:
 
 
 test-finder:
-	@$(PYTHON) -m pytest test/test_finder.py -v
+	@$(PYTHON) -m pytest src/test/test_finder.py -v
 
 test-chunker:
-	@$(PYTHON) -m pytest test/test_chunker.py -v
+	@$(PYTHON) -m pytest src/test/test_chunker.py -v
 
 test-parser:
-	@$(PYTHON) -m pytest test/test_pars.py -v
+	@$(PYTHON) -m pytest src/test/test_pars.py -v
 
-test: test-finder test-chunker test-parser
+test-evaluate:
+	@$(PYTHON) -m pytest src/test/test_evaluate.py -v
+
+test: test-finder test-chunker test-parser test-evaluate
 
 
 run:

@@ -21,6 +21,10 @@ class Chunker:
         """Initialize the chunker with a maximum chunk size."""
 
         self.max_chunk_size = max_chunk_size
+        if max_chunk_size < 1:
+            raise ValueError("max_chunk_size must be positive")
+        if max_chunk_size > 2000:
+            raise ValueError("max chunk can be more 2000")
 
     def chunk(
         self,

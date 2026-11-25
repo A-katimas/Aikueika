@@ -1,32 +1,10 @@
-# from pathlib import Path
-# from src.pars_content import Parser
-# from src.finder import Finder
-# from src.generator import Generator
-# from src.Rag import Rag
-
-# def main() -> None:
-#    parser = Parser(Path("."))
-#    generator = Generator()
-#    finder = Finder()
-#    question = "How to configure OpenAI server?"
-
-#    rag = Rag(parser, finder, generator, 5, question)
-#    rag.print_chunk()
-#    print("fin")
-
-
-# if __name__ == "__main__":
-#    main()
-
-"""Command-line interface of the RAG project."""
-
 import sys
 
 import fire
 
 from src.evaluate import Evaluator
 from src.pipeline import Pipeline
-from use_terminal.color import Rainbow, color
+from src.use_terminal.color import Rainbow, color
 
 RAW_DIR = "data/raw"
 MAX_CHUNK_SIZE = 2000

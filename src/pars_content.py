@@ -64,7 +64,10 @@ class Parser:
         """Read a supported file into a SourceFile model."""
         if path.suffix not in self.SUPPORTED_EXTENSIONS:
             return None
-        relative = path.relative_to(Path.cwd())
+
+        path = path.resolve()
+        relative = path.relative_to(self.root)
+
         content = path.read_text(encoding="utf-8")
         chunks = self.chunker.chunk(relative, content)
 
