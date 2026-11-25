@@ -45,7 +45,7 @@ class Cli:
     uv run python -m src <method_name> [options]
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rainbow = Rainbow(degrees=15)
 
     def index(

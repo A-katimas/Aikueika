@@ -20,7 +20,6 @@ class Chunker:
     def __init__(self, max_chunk_size: int = 2000) -> None:
         """Initialize the chunker with a maximum chunk size."""
 
-
         self.max_chunk_size = max_chunk_size
 
     def chunk(
